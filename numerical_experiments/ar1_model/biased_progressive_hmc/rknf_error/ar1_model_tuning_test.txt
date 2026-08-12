@@ -1,0 +1,26 @@
+[1] "range of tuned h"
+[1] 0.02424169 0.02434209
+[1] "range of tuned delta"
+[1] 0.0004802677 0.0004860585
+[1] "ratio dead end"
+
+     0      1 
+958832  41168 
+[1] "ratio total energy error less than threshold"
+[1] 0.797663
+[1] "ratio c"
+[1] 0.7994205
+[1] "n evals ode"
+[1] 1614435670
+[1] "min ess case"
+[1] 49
+[1] -3e-04
+[1] 1.0002
+[1] 603695
+[1] 373.9356
+[1] "max ess case"
+[1] 1
+[1] -2e-04
+[1] 0.9995
+[1] 979939
+[1] 606.9855

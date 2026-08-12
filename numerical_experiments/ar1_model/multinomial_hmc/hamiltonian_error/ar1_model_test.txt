@@ -1,0 +1,22 @@
+[1] "ratio dead end"
+
+     0      1 
+ 27841 972159 
+[1] "ratio total energy error less than threshold"
+[1] 0.79942
+[1] "ratio c"
+[1] 0.00130405
+[1] "n evals ode"
+[1] 230888087
+[1] "min ess case"
+[1] 54
+[1] -6e-04
+[1] 1.0016
+[1] 28804
+[1] 124.7531
+[1] "max ess case"
+[1] 100
+[1] -0.0046
+[1] 0.9949
+[1] 54941
+[1] 237.9551

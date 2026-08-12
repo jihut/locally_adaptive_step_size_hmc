@@ -1,0 +1,7 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+*.DS_Store
+funnel_model_tuning_test.RDS
+ar1_model_tuning_test.RDS
