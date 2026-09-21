@@ -56,6 +56,7 @@ final_run <- foreach::foreach(i = 1:n_chains) %dopar% {
   for (j in 2:100) {
     theta[j] <- cor_parameter * theta[j - 1] + rnorm(1, sd = sqrt(1 - cor_parameter ^ 2))
   }
+  dir.create("numerical_experiments/ar1_model/standard_hmc/rknf_error/log", showWarnings = F)
   sink(paste0("numerical_experiments/ar1_model/standard_hmc/rknf_error/log/log_nr_", i, ".txt"))
   print("Warmup")
   single_warmup_run <- adaptive_step_size_standard_HMC(
@@ -68,7 +69,8 @@ final_run <- foreach::foreach(i = 1:n_chains) %dopar% {
     log_target = log_target_fun, 
     grad_log_target = grad_log_target_fun, 
     theta = theta,
-    norm = "L-infinity"
+    norm = "L-infinity",
+    randomized_L = TRUE
   ) 
   print("Sampling")
   single_sampling_run <- adaptive_step_size_standard_HMC(
@@ -81,13 +83,16 @@ final_run <- foreach::foreach(i = 1:n_chains) %dopar% {
     log_target = log_target_fun, 
     grad_log_target = grad_log_target_fun, 
     theta = single_warmup_run$samples_matrix[nrow(single_warmup_run$samples_matrix), ],
-    norm = "L-infinity"
+    norm = "L-infinity",
+    randomized_L = TRUE
   ) 
   sink()
   single_sampling_run
 }
 
 parallel::stopCluster(init_cluster)
+saveRDS(final_run, "numerical_experiments/ar1_model/standard_hmc/rknf_error/ar1_model_test.RDS")
+
 
 final_result <- # concatenate same-named elements together across the chains
   lapply(names(final_run[[1]]), function(element_name) {

@@ -28,6 +28,7 @@ final_run <- foreach::foreach(i = 1:n_chains) %dopar% {
   theta <- numeric(d)
   theta[1] <- rnorm(1, mean = 0, sd = 3)
   theta[2:d] <- rnorm(d - 1, mean = 0, sd = exp(theta[1] / 2))
+  dir.create("numerical_experiments/funnel_model/multinomial_hmc/hamiltonian_error/log", showWarnings = F)
   sink(paste0("numerical_experiments/funnel_model/multinomial_hmc/hamiltonian_error/log/log_nr_", i, ".txt"))
   print("Warmup")
   single_warmup_run <- adaptive_step_size_multinomial_HMC_warmup(
@@ -66,6 +67,8 @@ final_run <- foreach::foreach(i = 1:n_chains) %dopar% {
 }
 
 parallel::stopCluster(init_cluster)
+saveRDS(final_run, "numerical_experiments/funnel_model/multinomial_hmc/hamiltonian_error/funnel_model_tuning_test.RDS")
+
 
 # Warmup results 
 

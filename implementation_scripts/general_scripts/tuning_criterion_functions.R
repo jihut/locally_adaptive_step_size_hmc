@@ -187,6 +187,13 @@ micro_fun_rknf_error <- function(h, delta, max_c, log_target, grad_log_target, h
 micro_fun_mrf_error <- function(h, delta, max_c, log_target, grad_log_target, hamiltonian, theta, rho, grad_log_target_initial, norm = "L-infinity",
                                 theta_final_backward = NULL, rho_final_backward = NULL, grad_log_target_final_backward = NULL, forward_micro_run_indicator = TRUE, ...) {
   
+  # NOTE: c = 0 here corresponds to c = 1 in the text!
+  # The general sampler implementation does not require any additional modifications
+  # if l is returned instead of l_finer (due to the condition forward_run_micro$l == 1 in the samplers), 
+  # i.e. this corresponds to starting from c = 0 and returning c and l.
+  # But this implies that 2^(c+1) is the correct number of micro steps taken for the returning state. 
+  # In other words, to get the correct value of c defined in the text, one needs to add by 1 here, i.e. c + 1. 
+  
   if (!(norm %in% c("L1", "L2", "L-infinity"))) {
     stop("Norm must be either: L1, L2 or L-infinity!")
   } else {

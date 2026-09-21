@@ -5,7 +5,7 @@
 [1] "ratio c"
 [1] 0.8315776
 [1] "ratio energy"
-[1] 0.800923
+[1] 0.809182
 [1] "n evals ode"
 [1] 169524834
 [1] "min ess case"

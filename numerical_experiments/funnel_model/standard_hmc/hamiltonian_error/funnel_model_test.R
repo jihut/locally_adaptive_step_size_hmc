@@ -4,10 +4,13 @@ library(ggplot2)
 source("implementation_scripts/standard_hmc/standard_hmc_functions.R")
 source("numerical_experiments/funnel_model/general_scripts/funnel_10d_model.R")
 
-h <- 0.25 
+# h <- 0.25 
 # delta <- 0.00002 # 95% metropolis rate
-delta <- 0.004 # 70% metropolis rate
-L <- 16
+# delta <- 0.004 # 70% metropolis rate
+# L <- 16
+h <- 0.5
+L <- 4
+delta <- 0.031
 max_c <- 20
 n_warmup_iterations <- 100000
 n_sampling_iterations <- 100000
@@ -21,6 +24,7 @@ final_run <- foreach::foreach(i = 1:n_chains) %dopar% {
   theta <- numeric(d)
   theta[1] <- rnorm(1, mean = 0, sd = 3)
   theta[2:d] <- rnorm(d - 1, mean = 0, sd = exp(theta[1] / 2))
+  dir.create("numerical_experiments/funnel_model/standard_hmc/hamiltonian_error/log", showWarnings = F)
   sink(paste0("numerical_experiments/funnel_model/standard_hmc/hamiltonian_error/log/log_nr_", i, ".txt"))
   print("Warmup")
   single_warmup_run <- adaptive_step_size_standard_HMC(
@@ -53,6 +57,8 @@ final_run <- foreach::foreach(i = 1:n_chains) %dopar% {
 }
 
 parallel::stopCluster(init_cluster)
+saveRDS(final_run, "numerical_experiments/funnel_model/standard_hmc/hamiltonian_error/funnel_model_test.RDS")
+
 
 final_result <- # concatenate same-named elements together across the chains
   lapply(names(final_run[[1]]), function(element_name) {

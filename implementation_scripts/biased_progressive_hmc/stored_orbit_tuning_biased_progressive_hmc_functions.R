@@ -35,7 +35,8 @@ single_iteration_standard_biased_progressive_HMC <- function(
     num_of_steps <- 2 ^ k
     current_orbit_matrix <- matrix(0, nrow = num_of_steps, ncol = 2 * d)
     current_grad_log_target_matrix <- matrix(0, nrow = num_of_steps, ncol = d)
-    current_hamiltonian_vector <- numeric(num_of_steps)
+    # current_hamiltonian_vector <- numeric(num_of_steps)
+    current_hamiltonian_vector <- rep(NA, num_of_steps)
     current_log_weight_vector <- rep(-1e12, num_of_steps)
     current_c_vector <- rep(-1, num_of_steps)
     current_gamma_obs_vector <- rep(-1, num_of_steps)
@@ -253,7 +254,8 @@ single_iteration_standard_biased_progressive_HMC <- function(
     dead_backward_indicator = dead_backward_indicator,
     max_c = ifelse(is.finite(c_vector_max), c_vector_max, -1),
     min_c = ifelse(is.finite(c_vector_min), c_vector_min, -1),
-    max_orbit_energy_error = max(hamiltonian_vector) - min(hamiltonian_vector[hamiltonian_vector != 0]),
+    # max_orbit_energy_error = max(hamiltonian_vector[hamiltonian_vector != 0]) - min(hamiltonian_vector[hamiltonian_vector != 0]),
+    max_orbit_energy_error = max(hamiltonian_vector, na.rm = T) - min(hamiltonian_vector, na.rm = T),
     n_evals_ode = n_evals_ode,
     gamma_obs_vector = gamma_obs_vector[gamma_obs_vector != -1]
   )

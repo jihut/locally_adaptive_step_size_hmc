@@ -140,8 +140,8 @@ adaptive_step_size_standard_HMC <- function(
     theta,
     norm = "L-infinity",
     return_c_for_L_equal_to_1 = FALSE,
-    relevant_indices = NULL # indices of the parameters to store in case one does not want to store all dimensions
-    
+    relevant_indices = NULL, # indices of the parameters to store in case one does not want to store all dimensions
+    randomized_L = FALSE # indicates if the number of leapfrog steps is randomized according to a Poisson distribution with expectation equal to L or not
 ) {
   d <- length(theta) # dimension of the parameter vector
 
@@ -167,8 +167,14 @@ adaptive_step_size_standard_HMC <- function(
   min_c_vector <- numeric(n_samples)
   reversibility_indicator <- numeric(n_samples) 
   accept_indicator <- numeric(n_samples)
-  c_matrix <- matrix(nrow = n_samples, ncol = L)
-  
+  if (randomized_L) {
+    c_matrix <- matrix(nrow = n_samples, ncol = 5 * L) # safeguard in case one gets L that is much larger than the mean
+    L_vector <- rpois(n = n_samples, lambda = L)
+    L_vector <- ifelse(L_vector == 0, 1, L_vector) # at least one leapfrog step needs tbe taken
+  } else {
+    c_matrix <- matrix(nrow = n_samples, ncol = L)
+  }
+
   current_theta <- theta
   current_grad_log_target <- grad_log_target(theta)
   n_evals_ode <- 1
@@ -183,36 +189,66 @@ adaptive_step_size_standard_HMC <- function(
     current_rho <- rnorm(d)
     initial_rho_matrix[i, ] <- current_rho[relevant_indices]
     initial_theta_matrix[i, ] <- current_theta[relevant_indices]
-    new_state <- single_iteration_standard_HMC( # obtain one single iteration using fixed length Hamiltonian with adaptive step size
-      micro_fun = micro_fun, 
-      h = h, 
-      L = L, 
-      delta = delta, 
-      max_c = max_c, 
-      log_target = log_target_fun, 
-      grad_log_target = grad_log_target_fun, 
-      hamiltonian = hamiltonian,
-      theta = current_theta, 
-      rho = current_rho, 
-      grad_log_target_initial = current_grad_log_target,
-      norm = norm,
-      return_c_for_L_equal_to_1 = return_c_for_L_equal_to_1
-    )
+    if (randomized_L) {
+      new_state <- single_iteration_standard_HMC( # obtain one single iteration using fixed length Hamiltonian with adaptive step size
+        micro_fun = micro_fun, 
+        h = h, 
+        L = L_vector[i], 
+        delta = delta, 
+        max_c = max_c, 
+        log_target = log_target_fun, 
+        grad_log_target = grad_log_target_fun, 
+        hamiltonian = hamiltonian,
+        theta = current_theta, 
+        rho = current_rho, 
+        grad_log_target_initial = current_grad_log_target,
+        norm = norm,
+        return_c_for_L_equal_to_1 = return_c_for_L_equal_to_1
+      )
+      c_matrix[i, 1:L_vector[i]] <- new_state$c_vector
+    } else {
+      new_state <- single_iteration_standard_HMC( # obtain one single iteration using fixed length Hamiltonian with adaptive step size
+        micro_fun = micro_fun, 
+        h = h, 
+        L = L, 
+        delta = delta, 
+        max_c = max_c, 
+        log_target = log_target_fun, 
+        grad_log_target = grad_log_target_fun, 
+        hamiltonian = hamiltonian,
+        theta = current_theta, 
+        rho = current_rho, 
+        grad_log_target_initial = current_grad_log_target,
+        norm = norm,
+        return_c_for_L_equal_to_1 = return_c_for_L_equal_to_1
+      )
+      c_matrix[i, ] <- new_state$c_vector
+    }
     n_evals_ode <- n_evals_ode + new_state$n_evals_ode
     samples_matrix[i, ] <- new_state$theta[relevant_indices]
     current_theta <- new_state$theta
     max_c_vector[i] <- new_state$max_c
     min_c_vector[i] <- new_state$min_c
-    c_matrix[i, ] <- new_state$c_vector
     accept_indicator[i] <- new_state$accept_indicator
     reversibility_indicator[i] <- new_state$weight_non_zero_indicator
     current_grad_log_target <- new_state$grad_log_target
   }
   
-  list(samples_matrix = samples_matrix, initial_theta_matrix = initial_theta_matrix, initial_rho_matrix = initial_rho_matrix,
-       max_c_vector = max_c_vector, min_c_vector = min_c_vector, reversibility_indicator = reversibility_indicator,
-       accept_indicator = accept_indicator,
-       c_matrix = c_matrix, 
-       n_evals_ode = n_evals_ode,
-       final_theta = current_theta)
+  if (randomized_L) {
+    list(samples_matrix = samples_matrix, initial_theta_matrix = initial_theta_matrix, initial_rho_matrix = initial_rho_matrix,
+         max_c_vector = max_c_vector, min_c_vector = min_c_vector, reversibility_indicator = reversibility_indicator,
+         accept_indicator = accept_indicator,
+         c_matrix = c_matrix, 
+         L_vector = L_vector,
+         n_evals_ode = n_evals_ode,
+         final_theta = current_theta)  
+  } else {
+    list(samples_matrix = samples_matrix, initial_theta_matrix = initial_theta_matrix, initial_rho_matrix = initial_rho_matrix,
+         max_c_vector = max_c_vector, min_c_vector = min_c_vector, reversibility_indicator = reversibility_indicator,
+         accept_indicator = accept_indicator,
+         c_matrix = c_matrix, 
+         n_evals_ode = n_evals_ode,
+         final_theta = current_theta)
+  }
+  
 }

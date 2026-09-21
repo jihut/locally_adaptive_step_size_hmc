@@ -19,7 +19,8 @@ single_iteration_multinomial_HMC <- function(
   final_index <- 0
   final_theta <- theta
   final_rho <- rho
-  hamiltonian_vector <- numeric(L + 1)
+  # hamiltonian_vector <- numeric(L + 1)
+  hamiltonian_vector <- rep(NA, L + 1)
   c_vector <- rep(-1, L)
   gamma_obs_vector <- rep(-1, L)
   
@@ -224,7 +225,8 @@ single_iteration_multinomial_HMC <- function(
     dead_forward_indicator = dead_forward_indicator,
     dead_backward_indicator = dead_backward_indicator,
     hamiltonian_vector = hamiltonian_vector,
-    max_orbit_energy_error = max(hamiltonian_vector) - min(hamiltonian_vector[hamiltonian_vector != 0]),
+    # max_orbit_energy_error = max(hamiltonian_vector[hamiltonian_vector != 0]) - min(hamiltonian_vector[hamiltonian_vector != 0]),
+    max_orbit_energy_error = max(hamiltonian_vector, na.rm = T) - min(hamiltonian_vector, na.rm = T),
     c_vector = c_vector, 
     max_c = max(c_vector[1:(hamiltonian_vector_index - 2)]),
     min_c = min(c_vector[1:(hamiltonian_vector_index - 2)]),

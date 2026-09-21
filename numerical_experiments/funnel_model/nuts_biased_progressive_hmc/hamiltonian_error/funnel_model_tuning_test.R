@@ -28,6 +28,7 @@ final_run <- foreach::foreach(i = 1:n_chains) %dopar% {
   theta <- numeric(d)
   theta[1] <- rnorm(1, mean = 0, sd = 3)
   theta[2:d] <- rnorm(d - 1, mean = 0, sd = exp(theta[1] / 2))
+  dir.create("numerical_experiments/funnel_model/nuts_biased_progressive_hmc/hamiltonian_error/log", showWarnings = F)
   sink(paste0("numerical_experiments/funnel_model/nuts_biased_progressive_hmc/hamiltonian_error/log/log_nr_", i, ".txt"))
   print("Warmup")
   single_warmup_run <- adaptive_step_size_nuts_biased_progressive_HMC_warmup(
@@ -67,7 +68,7 @@ final_run <- foreach::foreach(i = 1:n_chains) %dopar% {
 
 parallel::stopCluster(init_cluster)
 
-saveRDS(final_run, "numerical_experiments/funnel_model/nuts_biased_progressive_hmc/hamiltonian_error/new_funnel_model_tuning_test.RDS")
+saveRDS(final_run, "numerical_experiments/funnel_model/nuts_biased_progressive_hmc/hamiltonian_error/funnel_model_tuning_test.RDS")
 
 # Warmup results 
 
@@ -161,7 +162,7 @@ rstan_monitor_summary <- rstan::monitor(final_samples_3d_array, warmup = 0)
 rstan_monitor_summary$n_eff
 rstan_monitor_summary$n_eff * 1000000 / sum(final_sampling_result$n_evals_ode)
 
-sink("numerical_experiments/funnel_model/nuts_biased_progressive_hmc/hamiltonian_error/new_funnel_model_tuning_test.txt")
+sink("numerical_experiments/funnel_model/nuts_biased_progressive_hmc/hamiltonian_error/funnel_model_tuning_test.txt")
 print("range of tuned h")
 print(range_final_warmup_h)
 print("range of tuned delta")

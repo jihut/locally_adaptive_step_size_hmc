@@ -43,7 +43,7 @@ log_target_fun <- function(theta) {
 
 h <- 0.25 # macro step size of 5 for now
 m <- 5
-delta <- 0.025 # energy tolerance
+delta <- 0.09 # energy tolerance
 max_c <- 20
 max_orbit_energy_error_threshold <- 0.2
 n_warmup_iterations <- 10000
@@ -54,10 +54,10 @@ n_chains <- 10
 
 initial_mean_vector <- readRDS("numerical_experiments/sv_model/general_scripts/initial_mean_vector.RDS")
 
-relevant_indices <- c(1, 2, 3, d)
+relevant_indices <- c(1, 2, 3, 4, d)
 
-# init_cluster <- parallel::makeCluster(10)
-init_cluster <- parallel::makeCluster(5)
+init_cluster <- parallel::makeCluster(10)
+# init_cluster <- parallel::makeCluster(5)
 doParallel::registerDoParallel(init_cluster)
 
 final_run <- foreach::foreach(i = 1:n_chains) %dopar% {
@@ -101,6 +101,7 @@ final_run <- foreach::foreach(i = 1:n_chains) %dopar% {
   # theta <- rnorm(100)
   # theta <- rnorm(d) * 0.1
   theta <- rnorm(d, mean = initial_mean_vector, sd = 0.1)
+  dir.create("numerical_experiments/sv_model/nuts_biased_progressive_hmc/hamiltonian_error/log", showWarnings = F)
   sink(paste0("numerical_experiments/sv_model/nuts_biased_progressive_hmc/hamiltonian_error/log/log_nr_", i, ".txt"))
   print("Warmup")
   single_warmup_run <- adaptive_step_size_nuts_biased_progressive_HMC_sampling(
@@ -194,7 +195,7 @@ final_samples_3d_array[, , 1] <- (-1 + 2 * exp(final_samples_3d_array[, , 1])) /
   (1 + exp(final_samples_3d_array[, , 1])) # transform back to a parameter between -1 and 1
 final_samples_3d_array[, , 2] <- exp(final_samples_3d_array[, , 2]) # transform back to sigma
 
-relevant_indices <- c(1, 2, 3, dim(final_samples_3d_array)[3])
+relevant_indices <- c(1, 2, 3, 4, dim(final_samples_3d_array)[3])
 rstan_monitor_summary <- rstan::monitor(final_samples_3d_array[, , relevant_indices], warmup = 0) # only consider the two parameters and the first and last latent 
 rstan_monitor_summary$n_eff
 rstan_monitor_summary$n_eff * 1000000 / sum(final_result$n_evals_ode)

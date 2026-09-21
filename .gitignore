@@ -4,4 +4,8 @@
 .Ruserdata
 *.DS_Store
 funnel_model_tuning_test.RDS
+funnel_model_test.RDS
 ar1_model_tuning_test.RDS
+ar1_model_test.RDS
+sv_model_test.RDS
+*.so

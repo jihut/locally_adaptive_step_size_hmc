@@ -62,6 +62,7 @@ final_run <- foreach::foreach(i = 1:n_chains) %dopar% {
   for (j in 2:100) {
     theta[j] <- cor_parameter * theta[j - 1] + rnorm(1, sd = sqrt(1 - cor_parameter ^ 2))
   }
+  dir.create("numerical_experiments/ar1_model/nuts_biased_progressive_hmc/rknf_error/log", showWarnings = F)
   sink(paste0("numerical_experiments/ar1_model/nuts_biased_progressive_hmc/rknf_error/log/log_nr_", i, ".txt"))
   print("Warmup")
   single_warmup_run <- adaptive_step_size_nuts_biased_progressive_HMC_sampling(
@@ -94,6 +95,8 @@ final_run <- foreach::foreach(i = 1:n_chains) %dopar% {
 }
 
 parallel::stopCluster(init_cluster)
+saveRDS(final_run, "numerical_experiments/ar1_model/nuts_biased_progressive_hmc/rknf_error/ar1_model_test.RDS")
+
 
 final_result <- # concatenate same-named elements together across the chains
   lapply(names(final_run[[1]]), function(element_name) {
